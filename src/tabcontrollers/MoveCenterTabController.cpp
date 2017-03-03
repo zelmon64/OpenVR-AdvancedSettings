@@ -70,13 +70,43 @@ int MoveCenterTabController::rotation() const {
 	return m_rotation;
 }
 
+int MoveCenterTabController::pitch() const {
+	return m_pitch;
+}
+
+int MoveCenterTabController::roll() const {
+	return m_roll;
+}
+
 void MoveCenterTabController::setRotation(int value, bool notify) {
 	if (m_rotation != value) {
 		float angle = (value - m_rotation) * 2 * M_PI / 360.0;
-		parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, angle, m_adjustChaperone);
+		parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 1, angle, m_adjustChaperone);
 		m_rotation = value;
 		if (notify) {
 			emit rotationChanged(m_rotation);
+		}
+	}
+}
+
+void MoveCenterTabController::setPitch(int value, bool notify) {
+	if (m_pitch != value) {
+		float angle = (value - m_pitch) * 2 * M_PI / 360.0;
+		parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 0, angle, m_adjustChaperone);
+		m_pitch = value;
+		if (notify) {
+			emit pitchChanged(m_pitch);
+		}
+	}
+}
+
+void MoveCenterTabController::setRoll(int value, bool notify) {
+	if (m_roll != value) {
+		float angle = (value - m_roll) * 2 * M_PI / 360.0;
+		parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 2, angle, m_adjustChaperone);
+		m_roll = value;
+		if (notify) {
+			emit rollChanged(m_roll);
 		}
 	}
 }
@@ -177,7 +207,9 @@ void MoveCenterTabController::modOffsetZ(float value, bool notify) {
 
 void MoveCenterTabController::reset() {
 	vr::VRChaperoneSetup()->RevertWorkingCopy();
-	parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, -m_rotation * 2 * M_PI / 360.0, m_adjustChaperone, false);
+	parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 1, -m_rotation * 2 * M_PI / 360.0, m_adjustChaperone, false);
+	parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 0, -m_pitch * 2 * M_PI / 360.0, m_adjustChaperone, false);
+	parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 2, -m_roll * 2 * M_PI / 360.0, m_adjustChaperone, false);
 	parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 0, -m_offsetX, m_adjustChaperone, false);
 	parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 1, -m_offsetY, m_adjustChaperone, false);
 	parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 2, -m_offsetZ, m_adjustChaperone, false);
@@ -186,10 +218,14 @@ void MoveCenterTabController::reset() {
 	m_offsetY = 0.0f;
 	m_offsetZ = 0.0f;
 	m_rotation = 0;
+	m_pitch = 0;
+	m_roll = 0;
 	emit offsetXChanged(m_offsetX);
 	emit offsetYChanged(m_offsetY);
 	emit offsetZChanged(m_offsetZ);
 	emit rotationChanged(m_rotation);
+	emit pitchChanged(m_pitch);
+	emit rollChanged(m_roll);
 }
 
 void MoveCenterTabController::eventLoopTick(vr::ETrackingUniverseOrigin universe) {

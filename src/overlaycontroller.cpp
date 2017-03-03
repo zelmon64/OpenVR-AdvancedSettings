@@ -429,7 +429,7 @@ void OverlayController::AddOffsetToUniverseCenter(vr::ETrackingUniverseOrigin un
 	}
 }
 
-void OverlayController::RotateUniverseCenter(vr::ETrackingUniverseOrigin universe, float yAngle, bool adjustBounds, bool commit) {
+void OverlayController::RotateUniverseCenter(vr::ETrackingUniverseOrigin universe, unsigned axisId, float yAngle, bool adjustBounds, bool commit) {
 	if (yAngle != 0.0f) {
 		if (commit) {
 			vr::VRChaperoneSetup()->RevertWorkingCopy();
@@ -443,11 +443,19 @@ void OverlayController::RotateUniverseCenter(vr::ETrackingUniverseOrigin univers
 
 		vr::HmdMatrix34_t rotMat;
 		vr::HmdMatrix34_t newPos;
-		utils::initRotationMatrix(rotMat, 1, yAngle);
+		utils::initRotationMatrix(rotMat, axisId, yAngle);
 		utils::matMul33(newPos, rotMat, curPos);
+		/*
 		newPos.m[0][3] = curPos.m[0][3];
 		newPos.m[1][3] = curPos.m[1][3];
 		newPos.m[2][3] = curPos.m[2][3];
+		//*/
+		for (unsigned i = 0; i < 2; i++) {
+			for (unsigned j = 0; j < 3; j++) {
+				newPos.m[i][j] = curPos.m[i][j];
+			}
+		}
+		//newPos = curPos;
 		if (universe == vr::TrackingUniverseStanding) {
 			vr::VRChaperoneSetup()->SetWorkingStandingZeroPoseToRawTrackingPose(&newPos);
 		} else {

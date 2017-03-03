@@ -19,6 +19,8 @@ class MoveCenterTabController : public QObject {
 	Q_PROPERTY(float offsetY READ offsetY WRITE setOffsetY NOTIFY offsetYChanged)
 	Q_PROPERTY(float offsetZ READ offsetZ WRITE setOffsetZ NOTIFY offsetZChanged)
 	Q_PROPERTY(int rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
+	Q_PROPERTY(int pitch READ pitch WRITE setPitch NOTIFY pitchChanged)
+	Q_PROPERTY(int roll READ roll WRITE setRoll NOTIFY rollChanged)
 	Q_PROPERTY(bool adjustChaperone READ adjustChaperone WRITE setAdjustChaperone NOTIFY adjustChaperoneChanged)
 
 private:
@@ -30,6 +32,8 @@ private:
 	float m_offsetY = 0.0f;
 	float m_offsetZ = 0.0f;
 	int m_rotation = 0;
+	int m_pitch = 0;
+	int m_roll = 0;
 	bool m_adjustChaperone = true;
 
 	unsigned settingsUpdateCounter = 0;
@@ -44,6 +48,8 @@ public:
 	float offsetY() const;
 	float offsetZ() const;
 	int rotation() const;
+	int pitch() const;
+	int roll() const;
 	bool adjustChaperone() const;
 
 public slots:
@@ -55,6 +61,8 @@ public slots:
 	void setOffsetZ(float value, bool notify = true);
 
 	void setRotation(int value, bool notify = true);
+	void setPitch(int value, bool notify = true);
+	void setRoll(int value, bool notify = true);
 
 	void setAdjustChaperone(bool value, bool notify = true);
 
@@ -69,6 +77,8 @@ signals:
 	void offsetYChanged(float value);
 	void offsetZChanged(float value);
 	void rotationChanged(int value);
+	void pitchChanged(int value);
+	void rollChanged(int value);
 	void adjustChaperoneChanged(bool value);
 };
 

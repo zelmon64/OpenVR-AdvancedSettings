@@ -199,6 +199,11 @@ MyStackViewPage {
 
                 ColumnLayout {
                     RowLayout {
+                        MyText {
+                            text: "Yaw(side-to-side):"
+                            Layout.preferredWidth: 200
+                        }
+
                         MyPushButton2 {
                             id: playSpaceRotationMinusButton
                             Layout.preferredWidth: 40
@@ -262,6 +267,147 @@ MyStackViewPage {
                         }
                     }
                 }
+
+                ColumnLayout {
+                    RowLayout {
+                        MyText {
+                            text: "Pitch (Down/Up):"
+                            Layout.preferredWidth: 200
+                        }
+                        MyPushButton2 {
+                            id: playSpacePitchMinusButton
+                            Layout.preferredWidth: 40
+                            text: "-"
+                            onClicked: {
+                                var val = MoveCenterTabController.pitch - 45
+                                if (val < -180) {
+                                    val = val + 360;
+                                }
+                                MoveCenterTabController.pitch = val
+                            }
+                        }
+
+                        MySlider {
+                            id: playspacePitchSlider
+                            from: -180
+                            to: 180
+                            stepSize: 1
+                            value: 0
+                            Layout.fillWidth: true
+                            onPositionChanged: {
+                                var val = this.from + ( this.position  * (this.to - this.from))
+                                playspacePitchText.text = Math.round(val) + "°"
+                            }
+                            onValueChanged: {
+                                MoveCenterTabController.pitch = playspacePitchSlider.value
+                                playspacePitchText.text = Math.round(playspacePitchSlider.value) + "°"
+                            }
+                        }
+
+                        MyPushButton2 {
+                            id: playSpacePitchPlusButton
+                            Layout.preferredWidth: 40
+                            text: "+"
+                            onClicked: {
+                                var val = MoveCenterTabController.pitch + 45
+                                if (val > 180) {
+                                    val = val -360;
+                                }
+                                MoveCenterTabController.pitch = val
+                            }
+                        }
+
+                        MyTextField {
+                            id: playspacePitchText
+                            text: "0°"
+                            keyBoardUID: 105
+                            Layout.preferredWidth: 100
+                            Layout.leftMargin: 10
+                            horizontalAlignment: Text.AlignHCenter
+                            function onInputEvent(input) {
+                                var val = parseInt(input)
+                                if (!isNaN(val)) {
+                                    val = val % 180
+                                    MoveCenterTabController.pitch = val
+                                    text = MoveCenterTabController.pitch + "°"
+                                } else {
+                                    text = MoveCenterTabController.pitch + "°"
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    RowLayout {
+                        MyText {
+                            text: "Roll (rotate):"
+                            Layout.preferredWidth: 200
+                        }
+                        MyPushButton2 {
+                            id: playSpaceRollMinusButton
+                            Layout.preferredWidth: 40
+                            text: "-"
+                            onClicked: {
+                                var val = MoveCenterTabController.roll - 45
+                                if (val < -180) {
+                                    val = val + 360;
+                                }
+                                MoveCenterTabController.roll = val
+                            }
+                        }
+
+                        MySlider {
+                            id: playspaceRollSlider
+                            from: -180
+                            to: 180
+                            stepSize: 1
+                            value: 0
+                            Layout.fillWidth: true
+                            onPositionChanged: {
+                                var val = this.from + ( this.position  * (this.to - this.from))
+                                playspaceRollText.text = Math.round(val) + "°"
+                            }
+                            onValueChanged: {
+                                MoveCenterTabController.roll = playspaceRollSlider.value
+                                playspaceRollText.text = Math.round(playspaceRollSlider.value) + "°"
+                            }
+                        }
+
+                        MyPushButton2 {
+                            id: playSpaceRollPlusButton
+                            Layout.preferredWidth: 40
+                            text: "+"
+                            onClicked: {
+                                var val = MoveCenterTabController.roll + 45
+                                if (val > 180) {
+                                    val = val -360;
+                                }
+                                MoveCenterTabController.roll = val
+                            }
+                        }
+
+                        MyTextField {
+                            id: playspaceRollText
+                            text: "0°"
+                            keyBoardUID: 106
+                            Layout.preferredWidth: 100
+                            Layout.leftMargin: 10
+                            horizontalAlignment: Text.AlignHCenter
+                            function onInputEvent(input) {
+                                var val = parseInt(input)
+                                if (!isNaN(val)) {
+                                    val = val % 180
+                                    MoveCenterTabController.roll = val
+                                    text = MoveCenterTabController.roll + "°"
+                                } else {
+                                    text = MoveCenterTabController.roll + "°"
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
         }
 
@@ -290,18 +436,36 @@ MyStackViewPage {
             playSpaceMoveYText.text = MoveCenterTabController.offsetY.toFixed(2)
             playSpaceMoveZText.text = MoveCenterTabController.offsetZ.toFixed(2)
             playspaceRotationSlider.value = MoveCenterTabController.rotation
+            playspacePitchSlider.value = MoveCenterTabController.pitch
+            playspaceRollSlider.value = MoveCenterTabController.roll
             if (MoveCenterTabController.trackingUniverse === 0) {
                 playspaceModeText.text = "Sitting"
                 playSpaceRotationPlusButton.enabled = false
                 playSpaceRotationMinusButton.enabled = false
                 playspaceRotationSlider.enabled = false
                 playspaceRotationText.text = "-"
+                playSpacePitchPlusButton.enabled = false
+                playSpacePitchMinusButton.enabled = false
+                playspacePitchSlider.enabled = false
+                playspacePitchText.text = "-"
+                playSpaceRollPlusButton.enabled = false
+                playSpaceRollMinusButton.enabled = false
+                playspaceRollSlider.enabled = false
+                playspaceRollText.text = "-"
             } else if (MoveCenterTabController.trackingUniverse === 1) {
                 playspaceModeText.text = "Standing"
                 playSpaceRotationPlusButton.enabled = true
                 playSpaceRotationMinusButton.enabled = true
                 playspaceRotationSlider.enabled = true
                 playspaceRotationText.text = "0°"
+                playSpacePitchPlusButton.enabled = true
+                playSpacePitchMinusButton.enabled = true
+                playspacePitchSlider.enabled = true
+                playspacePitchText.text = "0°"
+                playSpaceRollPlusButton.enabled = true
+                playSpaceRollMinusButton.enabled = true
+                playspaceRollSlider.enabled = true
+                playspaceRollText.text = "0°"
             } else {
                 playspaceModeText.text = "Unknown(" + MoveCenterTabController.trackingUniverse + ")"
             }
@@ -321,6 +485,12 @@ MyStackViewPage {
             onRotationChanged: {
                 playspaceRotationSlider.value = MoveCenterTabController.rotation
             }
+            onPitchChanged: {
+                playspacePitchSlider.value = MoveCenterTabController.pitch
+            }
+            onRollChanged: {
+                playspaceRollSlider.value = MoveCenterTabController.roll
+            }
             onAdjustChaperoneChanged: {
                 playspaceAdjustChaperoneToggle = value
             }
@@ -331,12 +501,28 @@ MyStackViewPage {
                     playSpaceRotationMinusButton.enabled = false
                     playspaceRotationSlider.enabled = false
                     playspaceRotationText.text = "-"
+                    playSpacePitchPlusButton.enabled = false
+                    playSpacePitchMinusButton.enabled = false
+                    playspacePitchSlider.enabled = false
+                    playspacePitchText.text = "-"
+                    playSpaceRollPlusButton.enabled = false
+                    playSpaceRollMinusButton.enabled = false
+                    playspaceRollSlider.enabled = false
+                    playspaceRollText.text = "-"
                 } else if (MoveCenterTabController.trackingUniverse === 1) {
                     playspaceModeText.text = "Standing"
                     playSpaceRotationPlusButton.enabled = true
                     playSpaceRotationMinusButton.enabled = true
                     playspaceRotationSlider.enabled = true
                     playspaceRotationText.text = "0°"
+                    playSpacePitchPlusButton.enabled = true
+                    playSpacePitchMinusButton.enabled = true
+                    playspacePitchSlider.enabled = true
+                    playspacePitchText.text = "0°"
+                    playSpaceRollPlusButton.enabled = true
+                    playSpaceRollMinusButton.enabled = true
+                    playspaceRollSlider.enabled = true
+                    playspaceRollText.text = "0°"
                 } else {
                     playspaceModeText.text = "Unknown(" + MoveCenterTabController.trackingUniverse + ")"
                 }

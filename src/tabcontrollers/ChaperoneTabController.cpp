@@ -342,7 +342,7 @@ void ChaperoneTabController::setForceBounds(bool value, bool notify) {
 }
 
 void ChaperoneTabController::flipOrientation() {
-	parent->RotateUniverseCenter(vr::TrackingUniverseStanding, (float)M_PI);
+	parent->RotateUniverseCenter(vr::TrackingUniverseStanding, 1, (float)M_PI);
 }
 
 void ChaperoneTabController::reloadFromDisk() {

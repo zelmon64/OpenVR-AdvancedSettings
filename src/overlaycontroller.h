@@ -97,7 +97,7 @@ public:
 	void SetWidget(QQuickItem* quickItem, const std::string& name, const std::string& key = "");
 
 	void AddOffsetToUniverseCenter(vr::ETrackingUniverseOrigin universe, unsigned axisId, float offset, bool adjustBounds = true, bool commit = true);
-	void RotateUniverseCenter(vr::ETrackingUniverseOrigin universe, float yAngle, bool adjustBounds = true, bool commit = true); // around y axis
+	void RotateUniverseCenter(vr::ETrackingUniverseOrigin universe, unsigned axisId, float yAngle, bool adjustBounds = true, bool commit = true); // around y axis
 	void AddOffsetToCollisionBounds(unsigned axisId, float offset, bool commit = true);
 	void RotateCollisionBounds(float angle, bool commit = true); // around y axis
 
