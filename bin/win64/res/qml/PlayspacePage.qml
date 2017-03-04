@@ -201,7 +201,7 @@ MyStackViewPage {
                     RowLayout {
                         MyText {
                             text: "Yaw(side-to-side):"
-                            Layout.preferredWidth: 200
+                            Layout.preferredWidth: 220
                         }
 
                         MyPushButton2 {
@@ -272,7 +272,7 @@ MyStackViewPage {
                     RowLayout {
                         MyText {
                             text: "Pitch (Down/Up):"
-                            Layout.preferredWidth: 200
+                            Layout.preferredWidth: 220
                         }
                         MyPushButton2 {
                             id: playSpacePitchMinusButton
@@ -342,7 +342,7 @@ MyStackViewPage {
                     RowLayout {
                         MyText {
                             text: "Roll (rotate):"
-                            Layout.preferredWidth: 200
+                            Layout.preferredWidth: 220
                         }
                         MyPushButton2 {
                             id: playSpaceRollMinusButton
