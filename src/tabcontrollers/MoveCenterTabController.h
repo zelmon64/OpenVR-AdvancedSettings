@@ -11,6 +11,12 @@ namespace advsettings {
 // forward declaration
 class OverlayController;
 
+enum GrabFunction {
+	Translate,
+	Rotate,
+	None
+};
+
 
 class MoveCenterTabController : public QObject {
 	Q_OBJECT
@@ -29,8 +35,11 @@ private:
 	float m_offsetX = 0.0f;
 	float m_offsetY = 0.0f;
 	float m_offsetZ = 0.0f;
-	int m_rotation = 0;
+	float m_rotation = 0.f;
 	bool m_adjustChaperone = true;
+	bool m_buttonwaspressed = false;
+	vr::TrackedDevicePose_t m_startpose;
+	GrabFunction m_grabfunction = GrabFunction::None;
 
 	unsigned settingsUpdateCounter = 0;
 
@@ -62,6 +71,7 @@ public slots:
 	void modOffsetY(float value, bool notify = true);
 	void modOffsetZ(float value, bool notify = true);
 	void reset();
+	void drag_workd();
 
 signals:
 	void trackingUniverseChanged(int value);
