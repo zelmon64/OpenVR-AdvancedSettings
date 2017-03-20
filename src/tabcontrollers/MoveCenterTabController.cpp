@@ -377,8 +377,8 @@ void MoveCenterTabController::drag_workd() {
 					m_startpose = pose;
 				}
 			}
-			else if (state.ulButtonPressed & vr::ButtonMaskFromId((vr::EVRButtonId)9)
-				|| state.ulButtonTouched & vr::ButtonMaskFromId((vr::EVRButtonId)9)) 
+			else if (state.ulButtonPressed & vr::ButtonMaskFromId(vr::k_EButton_ApplicationMenu)
+				|| state.ulButtonTouched & vr::ButtonMaskFromId(vr::k_EButton_ApplicationMenu))
 			{
 				switch (m_grabfunction)
 				{
@@ -403,26 +403,37 @@ void MoveCenterTabController::drag_workd() {
 				} break;
 				}
 			}
-			else if (state.ulButtonPressed & vr::ButtonMaskFromId((vr::EVRButtonId)10)
-				|| state.ulButtonTouched & vr::ButtonMaskFromId((vr::EVRButtonId)10))
+			else if (state.ulButtonPressed & vr::ButtonMaskFromId((vr::EVRButtonId)8)
+				|| state.ulButtonTouched & vr::ButtonMaskFromId((vr::EVRButtonId)8))
 			{
 				if (!m_buttonwaspressed) {
+					m_changegrabfunctionpresstime = std::chrono::high_resolution_clock::now();
 					m_buttonwaspressed = true;
-					switch (m_grabfunction)
-					{
-					case GrabFunction::Translate:
-					{
-						m_grabfunction = GrabFunction::Rotate;
-					} break;
-					case GrabFunction::Rotate:
-					{
-						//m_grabfunction = GrabFunction::Translate;
-						m_grabfunction = GrabFunction::None;
-					} break;
-					case GrabFunction::None:
-					{
-						m_grabfunction = GrabFunction::Translate;
-					} break;
+					m_buttonwasheld = false;
+				}
+				else if (!m_buttonwasheld) {
+					const float k_hold_duration_milli = 1000.f;
+					std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+					std::chrono::duration<float, std::milli> pressDurationMilli = now - m_changegrabfunctionpresstime;
+
+					if (pressDurationMilli.count() >= k_hold_duration_milli) {
+						switch (m_grabfunction)
+						{
+						case GrabFunction::Translate:
+						{
+							m_grabfunction = GrabFunction::Rotate;
+						} break;
+						case GrabFunction::Rotate:
+						{
+							//m_grabfunction = GrabFunction::Translate;
+							m_grabfunction = GrabFunction::None;
+						} break;
+						case GrabFunction::None:
+						{
+							m_grabfunction = GrabFunction::Translate;
+						} break;
+						}
+						m_buttonwasheld = true;
 					}
 				}
 			}

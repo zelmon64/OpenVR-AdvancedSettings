@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <openvr.h>
+#include <chrono>
 
 class QQuickWindow;
 // application namespace
@@ -38,6 +39,8 @@ private:
 	float m_rotation = 0.f;
 	bool m_adjustChaperone = true;
 	bool m_buttonwaspressed = false;
+	bool m_buttonwasheld = false;
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_changegrabfunctionpresstime;
 	vr::TrackedDevicePose_t m_startpose;
 	GrabFunction m_grabfunction = GrabFunction::None;
 
