@@ -59,7 +59,7 @@ MyStackViewPage {
                         Layout.preferredWidth: 40
                         text: "-"
                         onClicked: {
-                            MoveCenterTabController.modOffsetX(-0.5)
+                            MoveCenterTabController.modOffsetX(-0.25)
                         }
                     }
 
@@ -87,7 +87,7 @@ MyStackViewPage {
                         Layout.preferredWidth: 40
                         text: "+"
                         onClicked: {
-                            MoveCenterTabController.modOffsetX(0.5)
+                            MoveCenterTabController.modOffsetX(0.25)
                         }
                     }
 
@@ -100,7 +100,7 @@ MyStackViewPage {
                         Layout.preferredWidth: 40
                         text: "-"
                         onClicked: {
-                            MoveCenterTabController.modOffsetY(-0.5)
+                            MoveCenterTabController.modOffsetY(-0.25)
                         }
                     }
 
@@ -127,7 +127,7 @@ MyStackViewPage {
                         Layout.preferredWidth: 40
                         text: "+"
                         onClicked: {
-                            MoveCenterTabController.modOffsetY(0.5)
+                            MoveCenterTabController.modOffsetY(0.25)
                         }
                     }
 
@@ -140,7 +140,7 @@ MyStackViewPage {
                         Layout.preferredWidth: 40
                         text: "-"
                         onClicked: {
-                            MoveCenterTabController.modOffsetZ(-0.5)
+                            MoveCenterTabController.modOffsetZ(-0.25)
                         }
                     }
 
@@ -167,7 +167,7 @@ MyStackViewPage {
                         Layout.preferredWidth: 40
                         text: "+"
                         onClicked: {
-                            MoveCenterTabController.modOffsetZ(0.5)
+                            MoveCenterTabController.modOffsetZ(0.25)
                         }
                     }
                 }
