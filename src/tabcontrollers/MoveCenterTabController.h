@@ -40,6 +40,7 @@ private:
 	bool m_adjustChaperone = true;
 	bool m_buttonwaspressed = false;
 	bool m_buttonwasheld = false;
+	bool m_crouching = false;
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_changegrabfunctionpresstime;
 	vr::TrackedDevicePose_t m_startpose;
 	GrabFunction m_grabfunction = GrabFunction::None;

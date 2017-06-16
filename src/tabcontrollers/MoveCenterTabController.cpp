@@ -73,7 +73,8 @@ int MoveCenterTabController::rotation() const {
 void MoveCenterTabController::setRotation(int value, bool notify) {
 	if (m_rotation != value) {
 		float angle = (value - m_rotation) * 2 * M_PI / 360.0;
-		parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, angle, m_adjustChaperone);
+		//parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, angle, m_adjustChaperone);
+		parent->RotateHMD((vr::TrackingUniverseOrigin)m_trackingUniverse, angle, m_adjustChaperone);
 		m_rotation = value;
 		if (notify) {
 			emit rotationChanged(m_rotation);
@@ -177,7 +178,8 @@ void MoveCenterTabController::modOffsetZ(float value, bool notify) {
 
 void MoveCenterTabController::reset() {
 	vr::VRChaperoneSetup()->RevertWorkingCopy();
-	parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, -m_rotation * 2 * M_PI / 360.0, m_adjustChaperone, false);
+	//parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, -m_rotation * 2 * M_PI / 360.0, m_adjustChaperone, false);
+	parent->RotateHMD((vr::TrackingUniverseOrigin)m_trackingUniverse, -m_rotation * 2 * M_PI / 360.0, m_adjustChaperone, false);
 	parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 0, -m_offsetX, m_adjustChaperone, false);
 	parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 1, -m_offsetY, m_adjustChaperone, false);
 	parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 2, -m_offsetZ, m_adjustChaperone, false);
@@ -369,7 +371,8 @@ void MoveCenterTabController::drag_workd() {
 						}
 
 						// * 2 * M_PI / 360.0
-						parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, angle, true);
+						//parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, angle, true);
+						parent->RotateHMD((vr::TrackingUniverseOrigin)m_trackingUniverse, angle, true);
 						emit rotationChanged(m_rotation);
 					} break;
 					}
@@ -397,10 +400,35 @@ void MoveCenterTabController::drag_workd() {
 				case GrabFunction::Rotate:
 				{
 					// * 2 * M_PI / 360.0
-					parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, -m_rotation * 2 * M_PI / 360.0, true);
+					//parent->RotateUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, -m_rotation * 2 * M_PI / 360.0, true);
+					parent->RotateHMD((vr::TrackingUniverseOrigin)m_trackingUniverse, -m_rotation * 2 * M_PI / 360.0, true);
 					m_rotation = 0;
 					emit rotationChanged(m_rotation);
 				} break;
+				}
+			}
+			else if (state.ulButtonPressed & vr::ButtonMaskFromId((vr::EVRButtonId)15)
+				|| state.ulButtonTouched & vr::ButtonMaskFromId((vr::EVRButtonId)15))
+			{
+				if (!m_buttonwaspressed) 
+				{
+					m_buttonwaspressed = true;
+					float crouchvalue = 1.f;
+
+					if (!m_crouching)
+					{
+						m_crouching = true;
+						parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 1, crouchvalue, true);
+						m_offsetY += crouchvalue;
+						emit offsetYChanged(m_offsetY);
+					}
+					else
+					{
+						m_crouching = false;
+						parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 1, -crouchvalue, true);
+						m_offsetY -= crouchvalue;
+						emit offsetYChanged(m_offsetY);
+					}
 				}
 			}
 			else if (state.ulButtonPressed & vr::ButtonMaskFromId((vr::EVRButtonId)8)

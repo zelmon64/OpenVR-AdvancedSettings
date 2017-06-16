@@ -98,6 +98,7 @@ public:
 
 	void AddOffsetToUniverseCenter(vr::ETrackingUniverseOrigin universe, unsigned axisId, float offset, bool adjustBounds = true, bool commit = true);
 	void RotateUniverseCenter(vr::ETrackingUniverseOrigin universe, float yAngle, bool adjustBounds = true, bool commit = true); // around y axis
+	void RotateHMD(vr::ETrackingUniverseOrigin universe, float yAngle, bool adjustBounds = true, bool commit = true); // around y axis
 	void AddOffsetToCollisionBounds(unsigned axisId, float offset, bool commit = true);
 	void RotateCollisionBounds(float angle, bool commit = true); // around y axis
 

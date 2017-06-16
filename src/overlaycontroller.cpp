@@ -462,6 +462,47 @@ void OverlayController::RotateUniverseCenter(vr::ETrackingUniverseOrigin univers
 	}
 }
 
+void OverlayController::RotateHMD(vr::ETrackingUniverseOrigin universe, float yAngle, bool adjustBounds, bool commit) {
+	if (yAngle != 0.0f) {
+		if (commit) {
+			vr::VRChaperoneSetup()->RevertWorkingCopy();
+		}
+		vr::HmdMatrix34_t curPos;
+		if (universe == vr::TrackingUniverseStanding) {
+			vr::VRChaperoneSetup()->GetWorkingStandingZeroPoseToRawTrackingPose(&curPos);
+		}
+		else {
+			vr::VRChaperoneSetup()->GetWorkingSeatedZeroPoseToRawTrackingPose(&curPos);
+		}
+
+		vr::TrackedDevicePose_t HMDPose;
+		vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(
+			vr::ETrackingUniverseOrigin::TrackingUniverseRawAndUncalibrated, 0, &HMDPose, 1);
+		float HMDx = HMDPose.mDeviceToAbsoluteTracking.m[0][3];
+		float HMDz = HMDPose.mDeviceToAbsoluteTracking.m[2][3];
+
+		vr::HmdMatrix34_t rotMat;
+		vr::HmdMatrix34_t newPos;
+		utils::initRotationMatrix(rotMat, 1, yAngle);
+		utils::matMul33(newPos, rotMat, curPos);
+		newPos.m[0][3] = std::cos(yAngle) * curPos.m[0][3] + std::sin(yAngle) * curPos.m[2][3] - (std::cos(yAngle) - 1) * HMDx - (std::sin(yAngle)) * HMDz;
+		newPos.m[1][3] = curPos.m[1][3];
+		newPos.m[2][3] = std::cos(yAngle) * curPos.m[2][3] - std::sin(yAngle) * curPos.m[0][3] - (std::cos(yAngle) - 1) * HMDz + (std::sin(yAngle)) * HMDx;
+		if (universe == vr::TrackingUniverseStanding) {
+			vr::VRChaperoneSetup()->SetWorkingStandingZeroPoseToRawTrackingPose(&newPos);
+		}
+		else {
+			vr::VRChaperoneSetup()->SetWorkingSeatedZeroPoseToRawTrackingPose(&newPos);
+		}
+		if (adjustBounds && universe == vr::TrackingUniverseStanding) {
+			RotateCollisionBounds(-yAngle, false);
+		}
+		if (commit) {
+			vr::VRChaperoneSetup()->CommitWorkingCopy(vr::EChaperoneConfigFile_Live);
+		}
+	}
+}
+
 
 void OverlayController::AddOffsetToCollisionBounds(unsigned axisId, float offset, bool commit) {
 	// Apparently Valve sanity-checks the y-coordinates of the collision bounds (and only the y-coordinates)
