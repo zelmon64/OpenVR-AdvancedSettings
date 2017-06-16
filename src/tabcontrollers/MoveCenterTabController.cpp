@@ -470,6 +470,196 @@ void MoveCenterTabController::drag_workd() {
 			}
 		}
 	}
+	if (leftId != vr::k_unTrackedDeviceIndexInvalid) {
+		vr::VRControllerState_t state;
+		vr::ETrackingUniverseOrigin eOrigin = vr::ETrackingUniverseOrigin::TrackingUniverseRawAndUncalibrated;
+		vr::TrackedDevicePose_t pose;
+		//virtual bool GetControllerStateWithPose( ETrackingUniverseOrigin eOrigin, vr::TrackedDeviceIndex_t unControllerDeviceIndex, vr::VRControllerState_t *pControllerState, uint32_t unControllerStateSize, TrackedDevicePose_t *pTrackedDevicePose ) = 0;
+		if (vr::VRSystem()->GetControllerStateWithPose(eOrigin, leftId, &state, sizeof(vr::VRControllerState_t), &pose))
+		{
+			//logControllerState(state, "Left ");
+			//newState |= handleControllerState(state, m_pttControllerConfigs);
+			if (state.ulButtonPressed & vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Trigger)
+				|| state.ulButtonTouched & vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Trigger))
+				//if (state.ulButtonPressed & vr::ButtonMaskFromId((vr::EVRButtonId)10)
+				//	|| state.ulButtonTouched & vr::ButtonMaskFromId((vr::EVRButtonId)10)) 
+			{
+				if (!m_leftbuttonwaspressed) {
+					m_leftstartpose = pose;
+					m_leftbuttonwaspressed = true;
+				}
+				else {
+					//vr::TrackedDevicePose_t newpose = pose;
+					//float valueX = (pose.mDeviceToAbsoluteTracking.m[0][3] - m_startpose.mDeviceToAbsoluteTracking.m[0][3]);
+					//float valueY = drag_mult * (pose.mDeviceToAbsoluteTracking.m[1][3] - m_startpose.mDeviceToAbsoluteTracking.m[1][3]);
+					//float valueZ = (pose.mDeviceToAbsoluteTracking.m[2][3] - m_startpose.mDeviceToAbsoluteTracking.m[2][3]);
+
+					switch (m_leftgrabfunction)
+					{
+					case GrabFunction::Translate:
+					{
+						float drag_mult = 10.f;
+						float valueXab = drag_mult * (pose.mDeviceToAbsoluteTracking.m[0][3] - m_startpose.mDeviceToAbsoluteTracking.m[0][3]);
+						float valueY = drag_mult * (pose.mDeviceToAbsoluteTracking.m[1][3] - m_startpose.mDeviceToAbsoluteTracking.m[1][3]);
+						float valueZab = drag_mult * (pose.mDeviceToAbsoluteTracking.m[2][3] - m_startpose.mDeviceToAbsoluteTracking.m[2][3]);
+
+						auto angle = m_rotation * 2 * M_PI / 360.0;
+
+						float valueX = std::cos(angle) * valueXab - std::sin(angle) * valueZab;
+						float valueZ = std::sin(angle) * valueXab + std::cos(angle) * valueZab;
+
+						parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 0, valueX, true);
+						parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 1, valueY, true);
+						parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 2, valueZ, true);
+
+						m_offsetX += valueX;
+						m_offsetY += valueY;
+						m_offsetZ += valueZ;
+						emit offsetXChanged(m_offsetX);
+						emit offsetYChanged(m_offsetY);
+						emit offsetZChanged(m_offsetZ);
+					} break;
+					case GrabFunction::Rotate:
+					{
+						
+						vr::TrackedDevicePose_t HMDPose;
+
+						vr::VRSystem()->GetDeviceToAbsoluteTrackingPose(
+							eOrigin, 0, &HMDPose, 1);
+
+						
+						float startposeX = m_startpose.mDeviceToAbsoluteTracking.m[0][3] - HMDPose.mDeviceToAbsoluteTracking.m[0][3];
+						float startposeZ = m_startpose.mDeviceToAbsoluteTracking.m[2][3] - HMDPose.mDeviceToAbsoluteTracking.m[2][3];
+						float currposeX = pose.mDeviceToAbsoluteTracking.m[0][3] - HMDPose.mDeviceToAbsoluteTracking.m[0][3];
+						float currposeZ = pose.mDeviceToAbsoluteTracking.m[2][3] - HMDPose.mDeviceToAbsoluteTracking.m[2][3];
+						// cos(c) = A dot B  / ||A|| x ||B||
+						float angle_nX = currposeX * startposeX;
+						float angle_nZ = currposeZ * startposeZ;
+
+						float angle_dC = (std::sqrt(currposeX * currposeX + currposeZ * currposeZ));
+						float angle_dS = std::sqrt(startposeX * startposeX + startposeZ * startposeZ);
+
+						float angle = (angle_nX + angle_nZ) / (angle_dC * angle_dS);
+
+						angle = (angle > 1) ? 0 : std::acos(angle);
+
+						float dposeX = currposeX - startposeX;
+						float dposeZ = currposeZ - startposeZ;
+
+						if (startposeZ < 0 && (startposeX > startposeZ || startposeX < -startposeZ))
+						{
+							if (dposeX > 0) angle *= -1;
+						}
+						else angle = 0;
+
+						m_rotation += angle * 180.0 / M_PI;
+						if (m_rotation > 180)
+						{
+							m_rotation -= 360;
+							angle -= 2 * M_PI;
+						}
+						else if (m_rotation < -180)
+						{
+							m_rotation += 360;
+							angle += 2 * M_PI;
+						}
+
+						parent->RotateHMD((vr::TrackingUniverseOrigin)m_trackingUniverse, angle, true);
+						emit rotationChanged(m_rotation);
+					} break;
+					}
+
+					m_leftstartpose = pose;
+				}
+			}
+			else if (state.ulButtonPressed & vr::ButtonMaskFromId(vr::k_EButton_ApplicationMenu)
+				|| state.ulButtonTouched & vr::ButtonMaskFromId(vr::k_EButton_ApplicationMenu))
+			{
+				switch (m_leftgrabfunction)
+				{
+				case GrabFunction::Translate:
+				{
+					parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 0, -m_offsetX, true);
+					parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 1, -m_offsetY, true);
+					parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 2, -m_offsetZ, true);
+					m_offsetX = 0.0f;
+					m_offsetY = 0.0f;
+					m_offsetZ = 0.0f;
+					emit offsetXChanged(m_offsetX);
+					emit offsetYChanged(m_offsetY);
+					emit offsetZChanged(m_offsetZ);
+				} break;
+				case GrabFunction::Rotate:
+				{
+					parent->RotateHMD((vr::TrackingUniverseOrigin)m_trackingUniverse, -m_rotation * 2 * M_PI / 360.0, true);
+					m_rotation = 0;
+					emit rotationChanged(m_rotation);
+				} break;
+				}
+			}
+			else if (state.ulButtonPressed & vr::ButtonMaskFromId((vr::EVRButtonId)15)
+				|| state.ulButtonTouched & vr::ButtonMaskFromId((vr::EVRButtonId)15))
+			{
+				if (!m_leftbuttonwaspressed)
+				{
+					m_leftbuttonwaspressed = true;
+					float crouchvalue = 1.f;
+
+					if (!m_crouching)
+					{
+						m_crouching = true;
+						parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 1, crouchvalue, true);
+						m_offsetY += crouchvalue;
+						emit offsetYChanged(m_offsetY);
+					}
+					else
+					{
+						m_crouching = false;
+						parent->AddOffsetToUniverseCenter((vr::TrackingUniverseOrigin)m_trackingUniverse, 1, -crouchvalue, true);
+						m_offsetY -= crouchvalue;
+						emit offsetYChanged(m_offsetY);
+					}
+				}
+			}
+			else if (state.ulButtonPressed & vr::ButtonMaskFromId((vr::EVRButtonId)8)
+				|| state.ulButtonTouched & vr::ButtonMaskFromId((vr::EVRButtonId)8))
+			{
+				if (!m_leftbuttonwaspressed) {
+					m_leftchangegrabfunctionpresstime = std::chrono::high_resolution_clock::now();
+					m_leftbuttonwaspressed = true;
+					m_leftbuttonwasheld = false;
+				}
+				else if (!m_leftbuttonwasheld) {
+					const float k_hold_duration_milli = 1000.f;
+					std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+					std::chrono::duration<float, std::milli> pressDurationMilli = now - m_leftchangegrabfunctionpresstime;
+
+					if (pressDurationMilli.count() >= k_hold_duration_milli) {
+						switch (m_leftgrabfunction)
+						{
+						case GrabFunction::Translate:
+						{
+							m_leftgrabfunction = GrabFunction::Rotate;
+						} break;
+						case GrabFunction::Rotate:
+						{
+							//m_grabfunction = GrabFunction::Translate;
+							m_leftgrabfunction = GrabFunction::None;
+						} break;
+						case GrabFunction::None:
+						{
+							m_leftgrabfunction = GrabFunction::Translate;
+						} break;
+						}
+						m_leftbuttonwasheld = true;
+					}
+				}
+			}
+			else {
+				m_leftbuttonwaspressed = false;
+			}
+		}
+	}
 
 }
 
