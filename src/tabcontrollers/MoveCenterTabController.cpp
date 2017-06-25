@@ -379,6 +379,33 @@ void MoveCenterTabController::drag_workd() {
 
 					m_startpose = pose;
 				}
+
+				if (m_grabfunction == GrabFunction::None) 
+				{
+					if (state.ulButtonTouched & vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Touchpad)
+						&& abs(state.rAxis[0].x) > 0.5
+						&& abs(state.rAxis[0].y) < 0.5
+						&& !m_rotatebuttonwaspressed)
+					{
+						m_rotatebuttonwaspressed = true;
+						float angle = M_PI / 6.f;
+						if (state.rAxis[0].x < 0)
+							angle *= -1;
+						m_rotation += angle * 180.0 / M_PI;
+						if (m_rotation > 180)
+						{
+							m_rotation -= 360;
+							angle -= 2 * M_PI;
+						}
+						else if (m_rotation < -180)
+						{
+							m_rotation += 360;
+							angle += 2 * M_PI;
+						}
+						parent->RotateHMD((vr::TrackingUniverseOrigin)m_trackingUniverse, angle, true);
+						emit rotationChanged(m_rotation);
+					}
+				}
 			}
 			else if (state.ulButtonPressed & vr::ButtonMaskFromId(vr::k_EButton_ApplicationMenu)
 				|| state.ulButtonTouched & vr::ButtonMaskFromId(vr::k_EButton_ApplicationMenu))
@@ -467,6 +494,7 @@ void MoveCenterTabController::drag_workd() {
 			}
 			else {
 				m_buttonwaspressed = false;
+				m_rotatebuttonwaspressed = false;
 			}
 		}
 	}

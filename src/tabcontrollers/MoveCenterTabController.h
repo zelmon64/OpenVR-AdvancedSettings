@@ -43,6 +43,7 @@ private:
 	bool m_leftbuttonwaspressed = false;
 	bool m_leftbuttonwasheld = false;
 	bool m_crouching = false;
+	bool m_rotatebuttonwaspressed = false;
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_changegrabfunctionpresstime;
 	vr::TrackedDevicePose_t m_startpose;
 	GrabFunction m_grabfunction = GrabFunction::None;
